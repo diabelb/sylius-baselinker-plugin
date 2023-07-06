@@ -25,11 +25,9 @@ final class BaselinkerConnectorController extends AbstractController
 
     /**
      * @param RequestHandler $requestHandler
-     * @param ContainerInterface $container
      */
-    public function __construct(RequestHandler $requestHandler, ContainerInterface $container)
+    public function __construct(RequestHandler $requestHandler)
     {
-        $this->container = $container;
         $this->requestHandler = $requestHandler;
     }
 
