@@ -15,7 +15,7 @@ namespace Spinbits\SyliusBaselinkerPlugin\Service;
 use Doctrine\Persistence\ObjectManager;
 use Spinbits\SyliusBaselinkerPlugin\Model\OrderAddModel;
 use Spinbits\SyliusBaselinkerPlugin\Model\ProductModel;
-use Sylius\Bundle\CoreBundle\Factory\OrderFactory;
+use Sylius\Bundle\CoreBundle\Factory\OrderFactoryInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Core\Factory\CartItemFactoryInterface;
 use Sylius\Component\Core\Model\Address;
@@ -46,7 +46,7 @@ use Webmozart\Assert\Assert;
 
 class OrderCreateService
 {
-    private OrderFactory $orderFactory;
+    private OrderFactoryInterface $orderFactory;
     private CartItemFactoryInterface $orderItemFactory;
     private Factory $customerFactory;
     private AddressFactory $addressFactory;
@@ -63,7 +63,7 @@ class OrderCreateService
     private PaymentMethodRepositoryInterface $paymentMethodRepository;
 
     public function __construct(
-        OrderFactory $orderFactory,
+        OrderFactoryInterface $orderFactory,
         CartItemFactoryInterface $orderItemFactory,
         Factory $customerFactory,
         AddressFactory $addressFactory,
