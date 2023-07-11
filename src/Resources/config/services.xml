@@ -27,6 +27,7 @@
 
         <service id="Spinbits\SyliusBaselinkerPlugin\Mapper\ProductMapper" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Mapper\ListProductMapper" autowire="true" autoconfigure="true"/>
+        <service id="Spinbits\SyliusBaselinkerPlugin\Mapper\ListOrderMapper" autowire="true" autoconfigure="true"/>
 
         <service id="Spinbits\SyliusBaselinkerPlugin\RequestHandler">
             <argument key="$password" type="string">%env(BASELINKER_PASSWORD)%</argument>
