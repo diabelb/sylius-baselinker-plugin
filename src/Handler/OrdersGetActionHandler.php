@@ -49,23 +49,20 @@ class OrdersGetActionHandler implements HandlerInterface
      * @return array
      * @throws InvalidArgumentException
      */
-    public function handle(Input $input): array
-    {
-	    /** @var ChannelInterface $channel */
-	    $channel = $this->channelContext->getChannel();
-	    $filter = new OrderListFilter($input, $channel);
+	public function handle(Input $input): array
+	{
+		/** @var ChannelInterface $channel */
+		$channel = $this->channelContext->getChannel();
+		$filter = new OrderListFilter($input, $channel);
 
-	    $paginator = $this->orderRepository->fetchBaseLinkerData($filter);
-	    $return = [];
-	    /** @var Order[] $paginator */
-	    foreach ($paginator as $order) {
-//		    /** @var ProductVariantInterface $variant */
-//		    foreach ($this->mapper->map($product, $channel) as $variant) {
-//			    $return[(int) $product->getId()] = $variant;
-//		    }
-	    }
-	    /** @var Pagerfanta $paginator */
-	    $return['pages'] = $paginator->getNbPages();
-	    return  $return;
-    }
+		$paginator = $this->orderRepository->fetchBaseLinkerData($filter);
+		$return = [];
+		/** @var Order[] $paginator */
+		foreach ($paginator as $order) {
+			$return[(int) $order->getId()] = $this->mapper->map($order, $channel);
+		}
+		/** @var Pagerfanta $paginator */
+		$return['pages'] = $paginator->getNbPages();
+		return  $return;
+	}
 }
