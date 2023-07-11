@@ -64,11 +64,11 @@ trait OrdersRepositoryTrait
         return $paginator;
     }
 
-    private function applyFilters(QueryBuilder $queryBuilder, ProductListFilter $filter): void
+    private function applyFilters(QueryBuilder $queryBuilder, OrderListFilter $filter): void
     {
-        if ($filter->hasId()) {
-            $this->filterById($queryBuilder, (string) $filter->getId());
-        }
+	    if ($filter->hasTimeFrom()) {
+		    $this->filterByTimeFrom($queryBuilder, (string) $filter->getTimeFrom());
+	    }
 
 //        if ($filter->hasPriceFrom()) {
 //            $this->filterPriceFrom($queryBuilder, (float) $filter->getPriceFrom());
@@ -97,6 +97,12 @@ trait OrdersRepositoryTrait
 //            $this->sort($queryBuilder, $filter->getSort());
 //        }
     }
+
+	private function filterByTimeFrom(QueryBuilder $queryBuilder, string $timestamp): void
+	{
+		$queryBuilder->andWhere('o.checkoutCompletedAt >= :timeFrom');
+		$queryBuilder->setParameter('timeFrom', $timestamp);
+	}
 
     private function filterById(QueryBuilder $queryBuilder, string $id): void
     {

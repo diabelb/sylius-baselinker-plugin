@@ -37,6 +37,16 @@ class OrderListFilter extends AbstractFilter implements PaginatorFilterInterface
         return $page < 1 ? 1 : $page;
     }
 
+	public function hasTimeFrom(): bool
+	{
+		return '' !== $this->getTimeFrom();
+	}
+
+	public function getTimeFrom(): ?string
+	{
+		return (string) $this->get('time_from');
+	}
+
     public function hasId(): bool
     {
         return '' !== $this->getId();
