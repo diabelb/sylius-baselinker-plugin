@@ -11,8 +11,8 @@ It allows to offer your products on many platforms like Ebay, Amazon or Allegro.
 Baselinker can help you automate sale processes with almost 16000 different providers.
 
 ## Details
-This package is implementation of communication with BaseLinker Connector ("integration file"). 
-For further details please refer to https://developers.baselinker.com/shops_api/ 
+This package is implementation of communication with BaseLinker Connector ("integration file").
+For further details please refer to https://developers.baselinker.com/shops_api/
 
 After installation your Baselinker connector url will be available under path: `/baselinker-connector` of your shop.
 
@@ -42,11 +42,11 @@ Follow the steps to install the plugin on your Sylius application:
 3. Import trait to your Order entity: `src/Entity/Order/Order.php`
     ```
     use Spinbits\SyliusBaselinkerPlugin\Entity\Order\OrderTrait;
-    
+
     class Order extends BaseOrder
     {
         use OrderTrait;
-    
+
     ```
 
 4. Import trait to your ProductRepository entity: `src/Repository/ProductRepository.php`
@@ -54,15 +54,15 @@ Follow the steps to install the plugin on your Sylius application:
     use Spinbits\SyliusBaselinkerPlugin\Repository\BaseLinkerProductRepositoryInterface;
     use Spinbits\SyliusBaselinkerPlugin\Repository\ProductsRepositoryTrait;
     use Sylius\Bundle\CoreBundle\Doctrine\ORM\ProductRepository as BaseProductRepository;
-    
+
     class ProductRepository extends BaseProductRepository implements BaseLinkerProductRepositoryInterface
     {
         use ProductsRepositoryTrait;
     }
-    
+
     ```
-   
-   Make sure there is repository replace with your namespace in `config/packages/_sylius.yaml` 
+
+   Make sure there is repository replace with your namespace in `config/packages/_sylius.yaml`
    ```yaml
     sylius_product:
         resources:
@@ -71,16 +71,37 @@ Follow the steps to install the plugin on your Sylius application:
                     repository: App\Repository\ProductRepository
     ```
 
-5. Set Baselinker password: `.env`
+5. Import trait to your OrderRepository entity: `src/Repository/OrderRepository.php`
+    ```
+	  use Spinbits\SyliusBaselinkerPlugin\Repository\BaseLinkerOrderRepositoryInterface;
+	  use Spinbits\SyliusBaselinkerPlugin\Repository\OrdersRepositoryTrait;
+	  use Sylius\Bundle\CoreBundle\Doctrine\ORM\OrderRepository as BaseOrderRepository;
+
+	  class OrderRepository extends BaseOrderRepository implements BaseLinkerOrderRepositoryInterface
+	  {
+	  	use OrdersRepositoryTrait;
+	  }
+    ```
+
+   Make sure there is repository replace with your namespace in `config/packages/_sylius.yaml`
+   ```yaml
+    sylius_order:
+        resources:
+            product:
+                classes:
+                    repository: App\Repository\OrderRepository
+    ```
+
+6. Set Baselinker password: `.env`
     ```
     BASELINKER_PASSWORD='example-password'
     ```
-6. Imports Plugin XML config file:
+7. Imports Plugin XML config file:
     ```
         <imports>
             <import resource="@SpinbitsSyliusBaselinkerPlugin/Resources/services.xml"/>
         </imports>
-    ```            
+    ```
    Or in `config/services.yaml`:
    ```yaml
     imports:
@@ -93,21 +114,21 @@ Follow the steps to install the plugin on your Sylius application:
 
 ### Basic tests
 
-in order to test plugin you should 
-- replace `localhost` with your sylius domain 
+in order to test plugin you should
+- replace `localhost` with your sylius domain
 - replace `example-password` with your baselinker password
-    
+
 You may get supported methods:
-    
+
 `curl -X POST -d 'bl_pass=example-password&action=SupportedMethods' http://localhost/baselinker-connector`
-    
+
 You may get version of integration:
-    
+
 `curl -X POST -d 'bl_pass=example-password&action=FileVersion' http://localhost/baselinker-connector`
-        
+
 ### Using Baslinker tester
-go to: 
-    `https://developers.baselinker.com/shops_api/index.php?tester=1`     
+go to:
+    `https://developers.baselinker.com/shops_api/index.php?tester=1`
 and follow the instructions.
 
 ## Help
