@@ -5,6 +5,7 @@
         <service id="Spinbits\SyliusBaselinkerPlugin\Controller\BaselinkerConnectorController" autowire="true" autoconfigure="true" public="true" />
 
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\FileVersionActionHandler" autowire="true" autoconfigure="true"/>
+		<service id="Spinbits\SyliusBaselinkerPlugin\Handler\OrdersGetActionHandler" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\OrderAddActionHandler" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\OrderUpdateActionHandler" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\ProductPricesActionHandler" autowire="true" autoconfigure="true"/>
@@ -33,6 +34,10 @@
                 <argument type="string">FileVersion</argument>
                 <argument type="service" id="Spinbits\SyliusBaselinkerPlugin\Handler\FileVersionActionHandler" />
             </call>
+			<call method="registerHandler">
+				<argument type="string">OrdersGet</argument>
+				<argument type="service" id="Spinbits\SyliusBaselinkerPlugin\Handler\OrdersGetActionHandler" />
+			</call>
             <call method="registerHandler">
                 <argument type="string">OrderAdd</argument>
                 <argument type="service" id="Spinbits\SyliusBaselinkerPlugin\Handler\OrderAddActionHandler" />
