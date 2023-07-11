@@ -1,8 +1,7 @@
 <?php
 
 /**
- * @author Marcin Hubert <>
- * @author Jakub Lech <info@smartbyte.pl>
+ * @author Adam Terepora <adam@terepora.pl>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,15 +13,13 @@ namespace Spinbits\SyliusBaselinkerPlugin\Repository;
 
 use Spinbits\SyliusBaselinkerPlugin\Filter\AbstractFilter;
 use Spinbits\SyliusBaselinkerPlugin\Filter\OrderListFilter;
-use Spinbits\SyliusBaselinkerPlugin\Filter\PageOnlyFilter;
 use Spinbits\SyliusBaselinkerPlugin\Filter\PaginatorFilterInterface;
-use Spinbits\SyliusBaselinkerPlugin\Filter\ProductDataFilter;
-use Spinbits\SyliusBaselinkerPlugin\Filter\ProductListFilter;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Exception\LessThan1CurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\QueryBuilder;
+use Sylius\Component\Core\Model\OrderInterface;
 
 trait OrdersRepositoryTrait
 {
@@ -42,10 +39,11 @@ trait OrdersRepositoryTrait
     {
         $queryBuilder = $this->createQueryBuilder('o');
 
-        $queryBuilder
-            ->distinct()
-            ->andWhere(':channel MEMBER OF o.channels')
-            ->setParameter('channel', $filter->getChannel());
+	    $queryBuilder
+		    ->andWhere('o.channel = :channel')
+		    ->andWhere('o.state != :state')
+		    ->setParameter('channel', $filter->getChannel())
+		    ->setParameter('state', OrderInterface::STATE_CART);
 
         return $queryBuilder;
     }
