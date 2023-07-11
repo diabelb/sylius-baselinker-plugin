@@ -68,7 +68,7 @@ trait OrdersRepositoryTrait
 		}
 
 		if ($filter->hasIdFrom()) {
-			$this->filterByIdFrom($queryBuilder, (int) $filter->getIdFrom());
+			$this->filterByIdFrom($queryBuilder, $filter->getIdFrom());
 		}
 
 		if ($filter->hasOnlyPaid() && $filter->isPaidOnly()) {
@@ -94,8 +94,8 @@ trait OrdersRepositoryTrait
 
 	private function filterByPaidOnly(QueryBuilder $queryBuilder): void
 	{
-		$queryBuilder->andWhere('o.paymentState = :paidOnly');
-		$queryBuilder->setParameter('paidOnly', true);
+		$queryBuilder->andWhere('o.paymentState = :paid');
+		$queryBuilder->setParameter('paid', 'paid');
 	}
 
 	private function filterByOrderId(QueryBuilder $queryBuilder, int $orderId): void
