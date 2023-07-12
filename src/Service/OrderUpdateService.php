@@ -20,6 +20,7 @@ use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Order\OrderTransitions;
 use Sylius\Component\Payment\PaymentTransitions;
+use Sylius\Component\Shipping\ShipmentTransitions;
 use Webmozart\Assert\Assert;
 
 class OrderUpdateService
@@ -70,6 +71,9 @@ class OrderUpdateService
             case "status":
                 $this->updateOrderStatus($order, $inputData->getUpdateValue());
                 break;
+            case "delivery_number":
+                $this->updateShippingData($order, $inputData);
+                break;
             default:
                 // do nothing
                 break;
@@ -96,10 +100,29 @@ class OrderUpdateService
         $orderStateMachine = $this->stateMachineFactory->get($order, OrderTransitions::GRAPH);
 
         switch ($updateValue) {
+            case 'in_progress':
+                if ($orderStateMachine->can('process')) {
+                    $orderStateMachine->apply('process');
+                }
+                break;
+            case 'sent':
+                $lastShipment = $order->getShipments()->last();
+                if ($lastShipment === null) {
+                    throw new \RuntimeException("Missing shipment for order: " . (string) $order->getId());
+                }
+                $shipmentStateMachine = $this->stateMachineFactory->get($lastShipment, ShipmentTransitions::GRAPH);
+                if ($shipmentStateMachine->can(ShipmentTransitions::TRANSITION_SHIP)) {
+                    $shipmentStateMachine->apply(ShipmentTransitions::TRANSITION_SHIP);
+                }
+                break;
             case OrderInterface::STATE_FULFILLED:
+                // shipment shipped
+                // payment paid
+                // order fulfilled
                 if ($orderStateMachine->can(OrderTransitions::TRANSITION_FULFILL)) {
                     $orderStateMachine->apply(OrderTransitions::TRANSITION_FULFILL);
                 }
+
                 break;
             case OrderInterface::STATE_CANCELLED:
                 if ($orderStateMachine->can(OrderTransitions::TRANSITION_CANCEL)) {
@@ -109,5 +132,15 @@ class OrderUpdateService
             default:
                 break;
         }
+    }
+
+    private function updateShippingData(OrderInterface $order, OrderUpdateModel $inputData)
+    {
+        $lastShipment = $order->getShipments()->last();
+        if ($lastShipment === null) {
+            throw new \RuntimeException("Missing shipment for order: " . (string) $order->getId());
+        }
+        $shipmentStateMachine = $this->stateMachineFactory->get($lastShipment, ShipmentTransitions::GRAPH);
+        $sth = '';
     }
 }
