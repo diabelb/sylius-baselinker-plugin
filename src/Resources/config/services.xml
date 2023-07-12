@@ -13,7 +13,10 @@
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\ProductsCategoriesActionHandler" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\ProductsDataActionHandler" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\ProductsListActionHandler" autowire="true" autoconfigure="true"/>
-        <service id="Spinbits\SyliusBaselinkerPlugin\Handler\StatusesListActionHandler" autowire="true" autoconfigure="true"/>
+		<service id="Spinbits\SyliusBaselinkerPlugin\Handler\StatusesListActionHandler" autowire="true" autoconfigure="true">
+			<argument type="service" id="translator" />
+			<argument key="$config">%sm.configs%</argument>
+		</service>
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\SupportedMethodsActionHandler" autowire="true" autoconfigure="true"/>
 
         <service id="Spinbits\SyliusBaselinkerPlugin\Service\OrderCreateService" autowire="true" autoconfigure="true">
