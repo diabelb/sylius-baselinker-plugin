@@ -96,6 +96,11 @@ class OrderUpdateService
         $orderStateMachine = $this->stateMachineFactory->get($order, OrderTransitions::GRAPH);
 
         switch ($updateValue) {
+            case OrderInterface::STATE_FULFILLED:
+                if ($orderStateMachine->can(OrderTransitions::TRANSITION_FULFILL)) {
+                    $orderStateMachine->apply(OrderTransitions::TRANSITION_FULFILL);
+                }
+                break;
             case OrderInterface::STATE_CANCELLED:
                 if ($orderStateMachine->can(OrderTransitions::TRANSITION_CANCEL)) {
                     $orderStateMachine->apply(OrderTransitions::TRANSITION_CANCEL);
