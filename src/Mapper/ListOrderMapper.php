@@ -69,7 +69,7 @@ class ListOrderMapper
 			'want_invoice'          => (int)false, // will be replaced with checking whether billing address provided and tax number provided
 			'date_add'              => $order->getCheckoutCompletedAt()->format('U'),
 			'user_comments'         => $order->getNotes(),
-			'delivery_method'       => $order->getShipments()->last()->getMethod()->getName(),
+			'delivery_method'       => $order->getShipments()->count() > 0 ? $order->getShipments()->last()->getMethod()->getName() : '',
 			'payment_method'        => $order->getLastPayment()->getMethod()->getName(),
 			'payment_method_cod'    => (int) $order->getLastPayment()->getMethod()->getCode() === 'cash_on_delivery',
 			'delivery_price'        => $order->getShippingTotal() / 100,
