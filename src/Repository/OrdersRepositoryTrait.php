@@ -83,7 +83,7 @@ trait OrdersRepositoryTrait
 	private function filterByTimeFrom(QueryBuilder $queryBuilder, string $timestamp): void
 	{
 		$queryBuilder->andWhere('o.checkoutCompletedAt >= :timeFrom');
-		$queryBuilder->setParameter('timeFrom', $timestamp);
+		$queryBuilder->setParameter('timeFrom', (new \DateTime())->setTimestamp((int) $timestamp));
 	}
 
 	private function filterByIdFrom(QueryBuilder $queryBuilder, string $idFrom): void
