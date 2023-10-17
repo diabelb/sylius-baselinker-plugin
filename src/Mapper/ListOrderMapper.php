@@ -47,6 +47,21 @@ class ListOrderMapper
 			array_push($products, $product);
 		}
 
+        $customerOptionsComments = [];
+        foreach ($order->getItems() as $item) {
+            /** @var OrderItem $item */
+            if (!$item->getCustomerOptionConfiguration()) continue;
+
+            array_push($customerOptionsComments, $item->getProductName());
+            array_push($customerOptionsComments, '----------------');
+            foreach ($item->getCustomerOptionConfiguration() as $orderItemOption) {
+                if (!$orderItemOption->getCustomerOptionValueName()) continue;
+
+                $entry = sprintf('%s: %s', $orderItemOption->getCustomerOptionName(), $orderItemOption->getCustomerOptionValueName());
+                array_push($customerOptionsComments, $entry);
+            }
+            array_push($customerOptionsComments, '================');
+        }
 
 		return [
 			'delivery_fullname'     => $order->getShippingAddress()->getFullName(),
@@ -71,6 +86,7 @@ class ListOrderMapper
 			'want_invoice'          => (int)false, // will be replaced with checking whether billing address provided and tax number provided
 			'date_add'              => $order->getCheckoutCompletedAt()->format('U'),
 			'user_comments'         => $order->getNotes(),
+			'user_comments_long'    => join("\n", $customerOptionsComments),
 			'delivery_method'       => $order->getShipments()->count() > 0 ? $order->getShipments()->last()->getMethod()->getName() : '',
 			'payment_method'        => $order->getLastPayment()->getMethod()->getName(),
 			'payment_method_cod'    => $order->getLastPayment()->getMethod()->getCode() === 'cash_on_delivery' ? 1 : 0,
