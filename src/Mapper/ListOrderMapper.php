@@ -64,8 +64,8 @@ class ListOrderMapper
 			'invoice_postcode'      => $order->getBillingAddress()->getPostcode(),
 			'invoice_country'       => Countries::getName($order->getBillingAddress()->getCountryCode()),
 			'invoice_country_code'  => $order->getBillingAddress()->getCountryCode(),
-            		'delivery_point_id'     => $order->getPoint() ? $order->getPoint()->getName() : '',
-            		'delivery_point_name'   => $order->getPoint() ? sprintf('Paczkomat %s', $order->getPoint()->getName()): '',
+			'delivery_point_id'     => $order->getPoint() ? $order->getPoint()->getName() : '',
+			'delivery_point_name'   => $order->getPoint() ? sprintf('Paczkomat %s', $order->getPoint()->getName()): '',
 			'phone'                 => $order->getCustomer()->getPhoneNumber(),
 			'email'                 => $order->getCustomer()->getEmail(),
 			'want_invoice'          => (int)false, // will be replaced with checking whether billing address provided and tax number provided
@@ -73,11 +73,12 @@ class ListOrderMapper
 			'user_comments'         => $order->getNotes(),
 			'delivery_method'       => $order->getShipments()->count() > 0 ? $order->getShipments()->last()->getMethod()->getName() : '',
 			'payment_method'        => $order->getLastPayment()->getMethod()->getName(),
-			'payment_method_cod'    => (int) $order->getLastPayment()->getMethod()->getCode() === 'cash_on_delivery',
+			'payment_method_cod'    => $order->getLastPayment()->getMethod()->getCode() === 'cash_on_delivery' ? 1 : 0,
 			'delivery_price'        => $order->getShippingTotal() / 100,
 			'currency'              => $order->getLastPayment()->getCurrencyCode(),
 			'status_id'             => $order->getCheckoutState(),
-			'paid'                  => (int) $order->getPaymentState() === OrderPaymentStates::STATE_PAID,
+			'paid'                  => $order->getPaymentState() === OrderPaymentStates::STATE_PAID ? 1 : 0,
+			'paid_time'             => $order->getPaymentState() === OrderPaymentStates::STATE_PAID ? $order->getLastPayment()->getUpdatedAt()->format('U') : null,
 			'products'              => $products,
 		];
 	}
