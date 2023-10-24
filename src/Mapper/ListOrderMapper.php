@@ -81,7 +81,7 @@ class ListOrderMapper
 			'invoice_country_code'  => $order->getBillingAddress()->getCountryCode(),
 			'delivery_point_id'     => $order->getPoint() ? $order->getPoint()->getName() : '',
 			'delivery_point_name'   => $order->getPoint() ? sprintf('Paczkomat %s', $order->getPoint()->getName()): '',
-			'phone'                 => $order->getCustomer()->getPhoneNumber(),
+			'phone'                 => $order->getShippingAddress()->getPhoneNumber() ?? $order->getCustomer()->getPhoneNumber(),
 			'email'                 => $order->getCustomer()->getEmail(),
 			'want_invoice'          => (int)false, // will be replaced with checking whether billing address provided and tax number provided
 			'date_add'              => $order->getCheckoutCompletedAt()->format('U'),
