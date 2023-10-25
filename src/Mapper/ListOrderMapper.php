@@ -38,7 +38,7 @@ class ListOrderMapper
                 if ( ! $orderItemOption->getCustomerOptionValueName()) {
                     continue;
                 }
-                $attrs[$orderItemOption->getCustomerOptionName()] = $orderItemOption->getCustomerOptionValueName();
+                $attrs[] = sprintf('%s: %s', $orderItemOption->getCustomerOptionName(), $orderItemOption->getCustomerOptionValueName());
             }
 			
 			$product = [
