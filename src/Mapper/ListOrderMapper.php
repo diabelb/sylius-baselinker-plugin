@@ -43,7 +43,7 @@ class ListOrderMapper
 			
 			$product = [
 				'id'         => $orderItem->getProduct()->getId(),
-				'name'       => sprintf('%s (%s)', $orderItem->getProductName(), $orderItem->getVariantName()),
+				'name'       => $orderItem->getVariantName() ? sprintf('%s (%s)', $orderItem->getProductName(), $orderItem->getVariantName()) : $orderItem->getProductName(),
 				'quantity'   => $orderItem->getQuantity(),
 				'price'      => $orderItem->getFullDiscountedUnitPrice() / 100,
 				'tax'        => 23, // here should be proper order item tax rate
