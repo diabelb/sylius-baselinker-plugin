@@ -32,6 +32,15 @@ class ListOrderMapper
 			foreach ($taxAdjustments as $taxAdjustment) {
 				$t = '';
 			}
+
+            $attrs = [];
+            foreach ($orderItem->getCustomerOptionConfiguration() as $orderItemOption) {
+                if ( ! $orderItemOption->getCustomerOptionValueName()) {
+                    continue;
+                }
+                $attrs[$orderItemOption->getCustomerOptionName()] = $orderItemOption->getCustomerOptionValueName();
+            }
+			
 			$product = [
 				'id'         => $orderItem->getProduct()->getId(),
 				'name'       => sprintf('%s (%s)', $orderItem->getProductName(), $orderItem->getVariantName()),
@@ -41,7 +50,7 @@ class ListOrderMapper
 				'weight'     => 0,
 				'sku'        => $orderItem->getVariant()->getCode(),
 				'ean'        => null,
-				'attributes' => [],
+				'attributes' => $attrs,
 			];
 
 			array_push($products, $product);
