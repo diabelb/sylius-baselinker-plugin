@@ -101,7 +101,7 @@ class ListOrderMapper
 			'user_comments_long'    => join("\n", $customerOptionsComments),
 			'delivery_method'       => $order->getShipments()->count() > 0 ? $order->getShipments()->last()->getMethod()->getName() : '',
 			'payment_method'        => $order->getLastPayment()->getMethod()->getName(),
-			'payment_method_cod'    => $order->getLastPayment()->getMethod()->getCode() === 'cash_on_delivery' ? 1 : 0,
+			'payment_method_cod'    => in_array($order->getLastPayment()->getMethod()->getCode(), ['cash_on_delivery', 'za-pobraniem-przy-odbiorze']) ? 1 : 0,
 			'delivery_price'        => $order->getShippingTotal() / 100,
 			'currency'              => $order->getLastPayment()->getCurrencyCode(),
 			'status_id'             => $order->getCheckoutState(),
