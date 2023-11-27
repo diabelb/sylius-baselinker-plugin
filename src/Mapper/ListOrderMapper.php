@@ -75,6 +75,13 @@ class ListOrderMapper
 
             array_push($customerOptionsComments, $item->getProductName());
             array_push($customerOptionsComments, '----------------');
+	    foreach ($item->getUnits() as $unit) {
+                $unitAdditionalValueAdjustments = $unit->getAdditionalUnitOptions();
+                foreach ($unitAdditionalValueAdjustments as $unitAdditionalValueAdjustment) {
+                    $entry = sprintf('%s: %s', $unitAdditionalValueAdjustment->getLabel(), 'Tak');
+                    array_push($customerOptionsComments, $entry);
+                }
+            }
             foreach ($item->getCustomerOptionConfiguration() as $orderItemOption) {
                 if (!$orderItemOption->getCustomerOptionValueName()) continue;
 
