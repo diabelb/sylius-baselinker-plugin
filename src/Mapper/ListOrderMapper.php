@@ -43,6 +43,15 @@ class ListOrderMapper
                     'value' => $orderItemOption->getCustomerOptionValueName()
                 ];
             }
+
+	    // additional options
+            foreach ($orderItem->getUnits() as $unit) {
+                $unitAdditionalValueAdjustments = $unit->getAdditionalUnitOptions();
+                foreach ($unitAdditionalValueAdjustments as $unitAdditionalValueAdjustment) {
+                    $attrs[$unitAdditionalValueAdjustment->getLabel()] = 'Tak';
+                }
+            }
+            // end additional options
 			
 			$product = [
 				'id'         => $orderItem->getProduct()->getId(),
