@@ -33,15 +33,19 @@ class ListOrderMapper
 				$t = '';
 			}
 
+	    $tempArr = [];
             $attrs = [];
             foreach ($orderItem->getCustomerOptionConfiguration() as $orderItemOption) {
                 if ( ! $orderItemOption->getCustomerOptionValueName()) {
                     continue;
                 }
-                $attrs[] = [
-                    'name' => $orderItemOption->getCustomerOptionName(),
-                    'value' => $orderItemOption->getCustomerOptionValueName()
-                ];
+	    	if (!array_key_exists($orderItemOption->getCustomerOptionName(), $tempArr) && !in_array($orderItemOption->getCustomerOptionValueName(), $tempArr)) {
+                	$attrs[] = [
+                    		'name' => $orderItemOption->getCustomerOptionName(),
+                    		'value' => $orderItemOption->getCustomerOptionValueName()
+                	];
+			$tempArr[$orderItemOption->getCustomerOptionName()] = $orderItemOption->getCustomerOptionValueName();
+		}
             }
 
 	    // additional options
@@ -71,6 +75,7 @@ class ListOrderMapper
 			array_push($products, $product);
 		}
 
+	$tempArr2 = [];
         $customerOptionsComments = [];
         foreach ($order->getItems() as $item) {
             /** @var OrderItem $item */
@@ -88,8 +93,12 @@ class ListOrderMapper
             foreach ($item->getCustomerOptionConfiguration() as $orderItemOption) {
                 if (!$orderItemOption->getCustomerOptionValueName()) continue;
 
-                $entry = sprintf('%s: %s', $orderItemOption->getCustomerOptionName(), $orderItemOption->getCustomerOptionValueName());
-                array_push($customerOptionsComments, $entry);
+		if (!array_key_exists($orderItemOption->getCustomerOptionName(), $tempArr2) && !in_array($orderItemOption->getCustomerOptionValueName(), $tempArr2)) {
+                	$entry = sprintf('%s: %s', $orderItemOption->getCustomerOptionName(), $orderItemOption->getCustomerOptionValueName());
+                	array_push($customerOptionsComments, $entry);
+
+			$tempArr2[$orderItemOption->getCustomerOptionName()] = $orderItemOption->getCustomerOptionValueName();
+		}
             }
             array_push($customerOptionsComments, '================');
         }
