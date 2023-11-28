@@ -48,7 +48,10 @@ class ListOrderMapper
             foreach ($orderItem->getUnits() as $unit) {
                 $unitAdditionalValueAdjustments = $unit->getAdditionalUnitOptions();
                 foreach ($unitAdditionalValueAdjustments as $unitAdditionalValueAdjustment) {
-                    $attrs[$unitAdditionalValueAdjustment->getLabel()] = 'Tak';
+                    $attrs[] = [
+                        'name' => $unitAdditionalValueAdjustment->getLabel(),
+                        'value' => 'Tak'
+                    ];
                 }
             }
             // end additional options
