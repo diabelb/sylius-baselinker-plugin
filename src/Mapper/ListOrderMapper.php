@@ -49,6 +49,7 @@ class ListOrderMapper
             }
 
 	    // additional options
+            $optionsTotal = 0;
             foreach ($orderItem->getUnits() as $unit) {
                 $unitAdditionalValueAdjustments = $unit->getAdditionalUnitOptions();
                 foreach ($unitAdditionalValueAdjustments as $unitAdditionalValueAdjustment) {
@@ -56,6 +57,7 @@ class ListOrderMapper
                         'name' => $unitAdditionalValueAdjustment->getLabel(),
                         'value' => 'Tak'
                     ];
+                    $optionsTotal += $unitAdditionalValueAdjustment->getAmount();
                 }
             }
             // end additional options
@@ -64,7 +66,7 @@ class ListOrderMapper
 				'id'         => $orderItem->getProduct()->getId(),
 				'name'       => $orderItem->getVariantName() ? sprintf('%s (%s)', $orderItem->getProductName(), $orderItem->getVariantName()) : $orderItem->getProductName(),
 				'quantity'   => $orderItem->getQuantity(),
-				'price'      => $orderItem->getFullDiscountedUnitPrice() / 100,
+				'price'      => ($orderItem->getFullDiscountedUnitPrice() + $optionsTotal) / 100,
 				'tax'        => 23, // here should be proper order item tax rate
 				'weight'     => 0,
 				'sku'        => $orderItem->getVariant()->getCode(),
