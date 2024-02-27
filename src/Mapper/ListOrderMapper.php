@@ -130,13 +130,13 @@ class ListOrderMapper
 			'user_comments'         => $order->getNotes(),
 			'user_comments_long'    => join("\n", $customerOptionsComments),
 			'delivery_method'       => $order->getShipments()->count() > 0 ? $order->getShipments()->last()->getMethod()->getName() : '',
-			'payment_method'        => $order->getLastPayment()->getMethod()->getName(),
-			'payment_method_cod'    => in_array($order->getLastPayment()->getMethod()->getCode(), ['cash_on_delivery', 'za-pobraniem-przy-odbiorze']) ? 1 : 0,
+			'payment_method'        => $order->getLastPayment() ? $order->getLastPayment()->getMethod()->getName() : ($order->getPromotionCoupon() ? 'kupon promocyjny' : 'Bez płatności'),
+			'payment_method_cod'    => $order->getLastPayment() ? (in_array($order->getLastPayment()->getMethod()->getCode(), ['cash_on_delivery', 'za-pobraniem-przy-odbiorze']) ? 1 : 0) : 0,
 			'delivery_price'        => $order->getShippingTotal() / 100,
-			'currency'              => $order->getLastPayment()->getCurrencyCode(),
+			'currency'              => $order->getLastPayment() ? $order->getLastPayment()->getCurrencyCode() : 'PLN',
 			'status_id'             => $order->getCheckoutState(),
 			'paid'                  => $order->getPaymentState() === OrderPaymentStates::STATE_PAID ? 1 : 0,
-			'paid_time'             => $order->getPaymentState() === OrderPaymentStates::STATE_PAID ? $order->getLastPayment()->getUpdatedAt()->format('U') : null,
+			'paid_time'             => $order->getPaymentState() === OrderPaymentStates::STATE_PAID ? ($order->getLastPayment() ? $order->getLastPayment()->getUpdatedAt()->format('U') : null) : null,
 			'products'              => $products,
 		];
 	}
