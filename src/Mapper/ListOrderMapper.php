@@ -21,6 +21,22 @@ use Symfony\Component\Intl\Countries;
 
 class ListOrderMapper
 {
+       private TaxRateResolverInterface $taxRateResolver;
+
+       public function __construct(
+	       TaxRateResolverInterface $taxRateResolver,
+       ) {
+	       $this->taxRateResolver = $taxRateResolver;
+       }
+
+	private function getTax(ProductVariant $variant, ChannelInterface $channel): int
+    {
+        $criteria = ['zone' => $channel->getDefaultTaxZone()];
+        $taxRate = $this->taxRateResolver->resolve($variant, $criteria);
+
+        return intval($taxRate?->getAmount() * 100);
+    }
+	
 	public function map(Order $order, ChannelInterface $channel): array
 	{
 		$products = [];
@@ -61,14 +77,14 @@ class ListOrderMapper
                 }
             }
             // end additional options
-			
+			$variant = $orderItem->getVariant();
 			$product = [
 				'id'         => $orderItem->getProduct()->getId(),
 				'name'       => $orderItem->getVariantName() ? sprintf('%s (%s)', $orderItem->getProductName(), $orderItem->getVariantName()) : $orderItem->getProductName(),
 				'quantity'   => $orderItem->getQuantity(),
 				'price'      => ($orderItem->getFullDiscountedUnitPrice() + $optionsTotal) / 100,
-				'tax'        => 23, // here should be proper order item tax rate
-				'weight'     => 0,
+				'tax'        => $this->getTax($variant, $channel), // here should be proper order item tax rate
+				'weight'     => $variant->getShippingWeight() ? $variant->getShippingWeight() : 0,
 				'sku'        => $orderItem->getVariant()->getCode(),
 				'ean'        => null,
 				'attributes' => $attrs,
