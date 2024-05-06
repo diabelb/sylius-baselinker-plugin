@@ -18,7 +18,7 @@ class FileVersionActionHandler implements HandlerInterface
     public function handle(Input $input): array
     {
         return [
-            'platform' => "OpenCartb",
+            'platform' => "OpenCart",
             'version' => "4.2.12",
             'standard' => 4,
         ];
