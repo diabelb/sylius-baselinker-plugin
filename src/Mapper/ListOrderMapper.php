@@ -18,6 +18,7 @@ use Sylius\Component\Core\Model\Order;
 use Sylius\Component\Core\Model\ProductVariant;
 use Sylius\Component\Core\OrderPaymentStates;
 use Symfony\Component\Intl\Countries;
+use Sylius\Component\Taxation\Resolver\TaxRateResolverInterface;
 
 class ListOrderMapper
 {
