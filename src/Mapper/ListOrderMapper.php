@@ -148,7 +148,7 @@ class ListOrderMapper
 			'user_comments_long'    => join("\n", $customerOptionsComments),
 			'delivery_method'       => $order->getShipments()->count() > 0 ? $order->getShipments()->last()->getMethod()->getName() : '',
 			'payment_method'        => $order->getLastPayment() ? $order->getLastPayment()->getMethod()->getName() : ($order->getPromotionCoupon() ? 'kupon promocyjny' : 'Bez płatności'),
-			'payment_method_cod'    => $order->getLastPayment() ? (in_array($order->getLastPayment()->getMethod()->getCode(), ['cash_on_delivery', 'za-pobraniem-przy-odbiorze']) ? 1 : 0) : 0,
+			'payment_method_cod'    => $order->getLastPayment() ? (in_array($order->getLastPayment()->getMethod()->getCode(), ['cash_on_delivery', 'za-pobraniem-przy-odbiorze', 'pobranie']) ? 1 : 0) : 0,
 			'delivery_price'        => $order->getShippingTotal() / 100,
 			'currency'              => $order->getLastPayment() ? $order->getLastPayment()->getCurrencyCode() : 'PLN',
 			'status_id'             => $order->getCheckoutState(),
