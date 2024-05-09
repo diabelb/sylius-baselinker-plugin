@@ -138,8 +138,8 @@ class ListOrderMapper
 			'invoice_postcode'      => $order->getBillingAddress()->getPostcode(),
 			'invoice_country'       => Countries::getName($order->getBillingAddress()->getCountryCode()),
 			'invoice_country_code'  => $order->getBillingAddress()->getCountryCode(),
-			'delivery_point_id'     => $order->getPoint() ? $order->getPoint()->getName() : '',
-			'delivery_point_name'   => $order->getPoint() ? sprintf('Paczkomat %s', $order->getPoint()->getName()): '',
+			'delivery_point_id'     => $order->getPoint() ? explode(",", $order->getPoint()->getName())[0] : '',
+			'delivery_point_name'   => $order->getPoint() ? sprintf('%s', $order->getPoint()->getName()): '',
 			'phone'                 => $order->getShippingAddress()->getPhoneNumber() ?? $order->getCustomer()->getPhoneNumber(),
 			'email'                 => $order->getCustomer()->getEmail(),
 			'want_invoice'          => (int)false, // will be replaced with checking whether billing address provided and tax number provided
