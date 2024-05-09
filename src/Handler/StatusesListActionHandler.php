@@ -39,6 +39,7 @@ class StatusesListActionHandler implements HandlerInterface
         foreach ($states as $state) {
             $statesResponse[$state] = $this->translator->trans(sprintf('sylius.ui.%s', $state));
         }
+	$statesResponse['sent'] = "Wysłane"
         return $statesResponse;
     }
 }
