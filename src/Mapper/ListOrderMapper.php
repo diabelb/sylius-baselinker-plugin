@@ -121,7 +121,14 @@ class ListOrderMapper
             }
             array_push($customerOptionsComments, '================');
         }
+		$deliveryMethod = $order->getShipments()->count() > 0 ? $order->getShipments()->last()->getMethod()->getName() : '';
+		$deliveryPointId = $order->getPoint() ? explode(",", $order->getPoint()->getName())[0] : '';
+		$deliveryPointName = $order->getPoint() ? sprintf('%s', $order->getPoint()->getName()): '';
 
+    		if($deliveryMethod == 'Orlen Paczka') {
+      			$deliveryPointId = preg_replace('~\D~', '', $deliveryPointId);
+      		}
+	
 		return [
 			'delivery_fullname'     => $order->getShippingAddress()->getFullName(),
 			'delivery_company'      => $order->getShippingAddress()->getCompany(),
@@ -138,15 +145,15 @@ class ListOrderMapper
 			'invoice_postcode'      => $order->getBillingAddress()->getPostcode(),
 			'invoice_country'       => Countries::getName($order->getBillingAddress()->getCountryCode()),
 			'invoice_country_code'  => $order->getBillingAddress()->getCountryCode(),
-			'delivery_point_id'     => $order->getPoint() ? explode(",", $order->getPoint()->getName())[0] : '',
-			'delivery_point_name'   => $order->getPoint() ? sprintf('%s', $order->getPoint()->getName()): '',
+			'delivery_point_id'     => $deliveryPointId,
+			'delivery_point_name'   => $deliveryPointName,
 			'phone'                 => $order->getShippingAddress()->getPhoneNumber() ?? $order->getCustomer()->getPhoneNumber(),
 			'email'                 => $order->getCustomer()->getEmail(),
 			'want_invoice'          => (int)false, // will be replaced with checking whether billing address provided and tax number provided
 			'date_add'              => $order->getCheckoutCompletedAt()->format('U'),
 			'user_comments'         => $order->getNotes(),
 			'user_comments_long'    => join("\n", $customerOptionsComments),
-			'delivery_method'       => $order->getShipments()->count() > 0 ? $order->getShipments()->last()->getMethod()->getName() : '',
+			'delivery_method'       => $deliveryMethod,
 			'payment_method'        => $order->getLastPayment() ? $order->getLastPayment()->getMethod()->getName() : ($order->getPromotionCoupon() ? 'kupon promocyjny' : 'Bez płatności'),
 			'payment_method_cod'    => $order->getLastPayment() ? (in_array($order->getLastPayment()->getMethod()->getCode(), ['cash_on_delivery', 'za-pobraniem-przy-odbiorze', 'pobranie']) ? 1 : 0) : 0,
 			'delivery_price'        => $order->getShippingTotal() / 100,
