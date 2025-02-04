@@ -125,7 +125,7 @@ class ListOrderMapper
 		$deliveryPointId = $order->getPoint() ? explode(",", $order->getPoint()->getName())[0] : '';
 		$deliveryPointName = $order->getPoint() ? sprintf('%s', $order->getPoint()->getName()): '';
 
-    		if($deliveryMethod == 'Orlen Paczka') {
+    		if($deliveryMethod == 'ORLEN Paczka') {
       			$deliveryPointId = preg_replace('~\D~', '', $deliveryPointId);
       		}
 	
