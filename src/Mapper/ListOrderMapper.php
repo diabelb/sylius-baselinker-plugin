@@ -81,7 +81,7 @@ class ListOrderMapper
 			$variant = $orderItem->getVariant();
 			$product = [
 				'id'         => $orderItem->getProduct()->getId(),
-				'name'       => $orderItem->getVariantName() ? sprintf('%s (%s)', $orderItem->getProductName(), $orderItem->getVariantName()) : $orderItem->getProductName(),
+				'name'       => $orderItem->getVariantName() ? explode("|", $orderItem->getVariantName())[0] : $orderItem->getProductName(),
 				'quantity'   => $orderItem->getQuantity(),
 				'price'      => ($orderItem->getFullDiscountedUnitPrice() + $optionsTotal) / 100,
 				'tax'        => $this->getTax($variant, $channel), // here should be proper order item tax rate
