@@ -164,7 +164,8 @@ class OrderCreateService
         $address = $this->addressFactory->createNew();
         $address->setFirstName($orderAddModel->getDeliveryFullname() ?? "");
         $address->setLastName("");
-        $address->setPostcode("");
+        $address->setCompany($orderAddModel->getDeliveryCompany() ?: null);
+        $address->setPostcode($orderAddModel->getDeliveryPostcode() ?? "");
         $address->setCustomer($customer);
         $address->setPhoneNumber($orderAddModel->getPhone() ?? "");
         $address->setStreet($orderAddModel->getDeliveryAddress() ?? "");
