@@ -16,7 +16,9 @@ use Sylius\Component\Core\Model\AdjustmentInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\Order;
 use Sylius\Component\Core\Model\ProductVariant;
+use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\OrderPaymentStates;
+use Sylius\Component\Core\OrderShippingStates;
 use Symfony\Component\Intl\Countries;
 use Sylius\Component\Taxation\Resolver\TaxRateResolverInterface;
 
@@ -161,10 +163,24 @@ class ListOrderMapper
 			'payment_method_cod'    => $order->getLastPayment() ? (in_array($order->getLastPayment()->getMethod()->getCode(), ['cash_on_delivery', 'za-pobraniem-przy-odbiorze', 'pobranie']) ? 1 : 0) : 0,
 			'delivery_price'        => $order->getShippingTotal() / 100,
 			'currency'              => $order->getLastPayment() ? $order->getLastPayment()->getCurrencyCode() : 'PLN',
-			'status_id'             => $order->getCheckoutState(),
+			'status_id'             => $this->getStatusId($order),
 			'paid'                  => $order->getPaymentState() === OrderPaymentStates::STATE_PAID ? 1 : 0,
 			'paid_time'             => $order->getPaymentState() === OrderPaymentStates::STATE_PAID ? ($order->getLastPayment() ? $order->getLastPayment()->getUpdatedAt()->format('U') : null) : null,
 			'products'              => $products,
 		];
+	}
+
+	/**
+	 * Has to be one of the keys returned by StatusesList (order states plus "sent"),
+	 * otherwise BaseLinker cannot map the status.
+	 */
+	private function getStatusId(Order $order): string
+	{
+		if (OrderInterface::STATE_NEW === $order->getState()
+			&& OrderShippingStates::STATE_SHIPPED === $order->getShippingState()) {
+			return 'sent';
+		}
+
+		return (string) $order->getState();
 	}
 }
