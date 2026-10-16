@@ -26,7 +26,6 @@ use Doctrine\ORM\QueryBuilder;
 trait ProductsRepositoryTrait
 {
     private bool $pricingsJoined = false;
-    private bool $translationsJoined = false;
 
     public function fetchBaseLinkerData(ProductListFilter $filter): Pagerfanta
     {
@@ -114,7 +113,7 @@ trait ProductsRepositoryTrait
         }
 
         if ($filter->hasSort()) {
-            $this->sort($queryBuilder, $filter->getSort());
+            $this->sort($queryBuilder, $filter);
         }
     }
 
@@ -181,37 +180,43 @@ trait ProductsRepositoryTrait
         $queryBuilder->setParameter('quantityFrom', $getQuantityFrom);
     }
 
-    private function sort(QueryBuilder $queryBuilder, array $sort): void
+    /**
+     * The query is DISTINCT, so MySQL only allows ordering by selected columns (error 3065). Sort values are
+     * therefore selected as hidden fields, computed per product so joins cannot duplicate rows.
+     */
+    private function sort(QueryBuilder $queryBuilder, ProductListFilter $filter): void
     {
+        $sort = $filter->getSort();
+        $order = 'DESC' === strtoupper((string) ($sort[1] ?? '')) ? 'DESC' : 'ASC';
+        $variantClass = $this->getClassMetadata()->getAssociationTargetClass('variants');
+
         switch ($sort[0] ?? null) {
             case 'name':
-                $this->joinTranslations($queryBuilder);
-                $field = 'translation.name';
+                $queryBuilder
+                    ->leftJoin('o.translations', 'sortTranslation', 'WITH', 'sortTranslation.locale = :sortLocale')
+                    ->addSelect('sortTranslation.name AS HIDDEN sortValue')
+                    ->setParameter('sortLocale', $filter->getChannel()?->getDefaultLocale()?->getCode());
                 break;
             case 'price':
-                $this->joinPricings($queryBuilder);
-                $field = 'pricing.price';
+                $queryBuilder
+                    ->addSelect(sprintf(
+                        '(SELECT MIN(sortPricing.price) FROM %s sortPriceVariant JOIN sortPriceVariant.channelPricings sortPricing'
+                        . ' WHERE sortPriceVariant.product = o AND sortPricing.channelCode = :sortChannelCode) AS HIDDEN sortValue',
+                        $variantClass
+                    ))
+                    ->setParameter('sortChannelCode', $filter->getChannel()?->getCode());
                 break;
             case 'quantity':
-                $this->joinPricings($queryBuilder);
-                $field = 'productVariant.onHand';
+                $queryBuilder->addSelect(sprintf(
+                    '(SELECT SUM(sortQuantityVariant.onHand) FROM %s sortQuantityVariant WHERE sortQuantityVariant.product = o) AS HIDDEN sortValue',
+                    $variantClass
+                ));
                 break;
             case 'id':
             default:
-                $field = 'o.id';
-                break;
+                $queryBuilder->addOrderBy('o.id', $order);
+                return;
         }
-        $order = $sort[1] !== null ? (string) $sort[1] : 'ASC';
-        $queryBuilder->addOrderBy($field, $order);
-    }
-
-    private function joinTranslations(QueryBuilder $queryBuilder): void
-    {
-        if ($this->translationsJoined) {
-            return;
-        }
-        $this->translationsJoined = true;
-        $queryBuilder
-            ->join('o.translations', 'translation');
+        $queryBuilder->addOrderBy('sortValue', $order)->addOrderBy('o.id', 'ASC');
     }
 }

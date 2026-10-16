@@ -46,6 +46,9 @@ final class BaselinkerConnectorController extends AbstractController
         $input = new Input($input);
         $response = $this->requestHandler->handle($input);
 
-        return new JsonResponse($response->content(), $response->code() < 100 ? 500 : $response->code());
+        // Exception codes (e.g. MySQL error numbers) are not HTTP statuses
+        $code = $response->code();
+
+        return new JsonResponse($response->content(), $code >= 100 && $code < 600 ? $code : 500);
     }
 }
