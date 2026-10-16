@@ -71,6 +71,10 @@ trait ProductsRepositoryTrait
 
     private function appendPaginator(PaginatorFilterInterface $filter, QueryBuilder $queryBuilder): Pagerfanta
     {
+        // Without a stable order MySQL may repeat or skip rows between pages
+        if ([] === $queryBuilder->getDQLPart('orderBy')) {
+            $queryBuilder->addOrderBy('o.id', 'ASC');
+        }
         $paginator = new Pagerfanta(new QueryAdapter($queryBuilder));
         $paginator->setNormalizeOutOfRangePages(true);
         $paginator->setMaxPerPage($filter->getLimit());
