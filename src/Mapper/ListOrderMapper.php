@@ -23,11 +23,14 @@ use Sylius\Component\Taxation\Resolver\TaxRateResolverInterface;
 class ListOrderMapper
 {
        private TaxRateResolverInterface $taxRateResolver;
+       private ProductNameResolver $nameResolver;
 
        public function __construct(
 	       TaxRateResolverInterface $taxRateResolver,
+	       ProductNameResolver $nameResolver,
        ) {
 	       $this->taxRateResolver = $taxRateResolver;
+	       $this->nameResolver = $nameResolver;
        }
 
 	private function getTax(ProductVariant $variant, ChannelInterface $channel): int
@@ -81,7 +84,7 @@ class ListOrderMapper
 			$variant = $orderItem->getVariant();
 			$product = [
 				'id'         => $orderItem->getProduct()->getId(),
-				'name'       => $orderItem->getVariantName() ? explode("|", $orderItem->getVariantName())[0] : $orderItem->getProductName(),
+				'name'       => $this->nameResolver->forOrderItem($orderItem),
 				'quantity'   => $orderItem->getQuantity(),
 				'price'      => ($orderItem->getFullDiscountedUnitPrice() + $optionsTotal) / 100,
 				'tax'        => $this->getTax($variant, $channel), // here should be proper order item tax rate

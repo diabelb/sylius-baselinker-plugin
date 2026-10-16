@@ -96,18 +96,18 @@ Follow the steps to install the plugin on your Sylius application:
     ```
     BASELINKER_PASSWORD='example-password'
     ```
-7. Imports Plugin XML config file:
-    ```
-        <imports>
-            <import resource="@SpinbitsSyliusBaselinkerPlugin/Resources/services.xml"/>
-        </imports>
-    ```
-   Or in `config/services.yaml`:
+7. Services are loaded by the bundle (do not import `services.xml` yourself). Optionally configure it in
+   `config/packages/spinbits_sylius_baselinker.yaml`:
    ```yaml
-    imports:
-        - { resource: '../vendor/spinbits/sylius-baselinker-plugin/src/Resources/config/services.xml' }
+   spinbits_sylius_baselinker:
+       # Product names in the form "Name | Subtitle" are sent to BaseLinker as "Name"
+       product_name_subtitle_separator: '|'
+       # Product page URL for headless shops; defaults to the sylius_shop_product_show route (empty when missing)
+       product_url: '%env(FRONTEND_URL)%/product/{code}/{slug}'
    ```
-7. Run migrations:
+   Products with a single variant are named after the product; the variant name is appended only for products
+   with several variants.
+8. Run migrations:
     `bin/console doctrine:migrations:migrate`
 
 ## Test plugin:

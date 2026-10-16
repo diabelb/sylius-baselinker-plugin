@@ -25,7 +25,9 @@ final class SpinbitsSyliusBaselinkerExtension extends Extension implements Prepe
 
     public function load(array $configs, ContainerBuilder $container): void
     {
-        $this->processConfiguration($this->getConfiguration([], $container), $configs);
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $configs);
+        $container->setParameter('spinbits_sylius_baselinker.product_name_subtitle_separator', $config['product_name_subtitle_separator']);
+        $container->setParameter('spinbits_sylius_baselinker.product_url', $config['product_url']);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $loader->load('services.xml');

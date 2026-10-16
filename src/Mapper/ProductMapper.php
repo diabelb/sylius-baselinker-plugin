@@ -17,11 +17,11 @@ use Sylius\Component\Attribute\Model\AttributeInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ImageInterface;
 use Sylius\Component\Core\Model\Product;
-use Sylius\Component\Core\Model\ProductVariant;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Taxation\Resolver\TaxRateResolverInterface;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\RouterInterface;
 
 class ProductMapper
@@ -29,51 +29,75 @@ class ProductMapper
     private CacheManager $cacheManager;
     private TaxRateResolverInterface $taxRateResolver;
     private RouterInterface $router;
+    private ProductNameResolver $nameResolver;
+    private ?string $productUrlTemplate;
 
-    /**
-     * @param CacheManager $cacheManager
-     * @param TaxRateResolverInterface $taxRateResolver
-     * @param RouterInterface $router
-     */
     public function __construct(
         CacheManager $cacheManager,
         TaxRateResolverInterface $taxRateResolver,
-        RouterInterface $router
+        RouterInterface $router,
+        ProductNameResolver $nameResolver,
+        ?string $productUrlTemplate = null
     ) {
         $this->cacheManager = $cacheManager;
         $this->taxRateResolver = $taxRateResolver;
         $this->router = $router;
+        $this->nameResolver = $nameResolver;
+        $this->productUrlTemplate = '' === $productUrlTemplate ? null : $productUrlTemplate;
     }
 
-    public function map(Product $product, ChannelInterface $channel): \Generator
+    public function map(Product $product, ChannelInterface $channel): array
     {
-        /** @var LocaleInterface $defaultLocale */
-        $defaultLocale = $channel->getDefaultLocale();
-        /** @var ProductVariant $variant */
-        $variant = $product->getVariants()->first();
-        yield [
+        /** @var ProductVariantInterface[] $variants */
+        $variants = $product->getEnabledVariants()->toArray();
+        /** @var ProductVariantInterface|false $mainVariant */
+        $mainVariant = reset($variants);
+
+        return [
             'sku' => $product->getCode(),
-            'name' => $product->getName() . ' ' . $variant->getName(),
-            'tax' => $this->getTax($variant, $channel),
-            'quantity' => $variant->getOnHand(),
-            'price' => $this->getPrice($variant, $channel),
+            'name' => $this->nameResolver->forProduct($product),
+            'tax' => false === $mainVariant ? 0 : $this->getTax($mainVariant, $channel),
+            'quantity' => false === $mainVariant ? 0 : $mainVariant->getOnHand(),
+            'price' => false === $mainVariant ? 0.0 : $this->getPrice($mainVariant, $channel),
             'description' => $product->getDescription(),
             'categoryId' => $this->getTaxon($product),
             'images' => $this->getImages($product),
-            'variants' => $this->getVariants($product, $channel),
+            'variants' => $this->getVariants($variants, $channel),
             'features' => $this->getFeatures($product),
             'allCategories' => $this->getTaxonomies($product),
             'allCategoriesExpanded' => $this->getTaxonomiesExpanded($product),
             'shortDescription' => $product->getShortDescription(),
             'slug' => $product->getSlug(),
-            'url' => $this->router->generate('sylius_shop_product_show', [
-                '_locale' => $defaultLocale->getCode(),
-                'slug' => $product->getSlug(),
-            ]),
+            'url' => $this->getUrl($product, $channel),
         ];
     }
 
-    private function getTax(ProductVariant $variant, ChannelInterface $channel): int
+    private function getUrl(Product $product, ChannelInterface $channel): string
+    {
+        /** @var LocaleInterface|null $defaultLocale */
+        $defaultLocale = $channel->getDefaultLocale();
+        $locale = (string) $defaultLocale?->getCode();
+
+        if (null !== $this->productUrlTemplate) {
+            return strtr($this->productUrlTemplate, [
+                '{code}' => rawurlencode((string) $product->getCode()),
+                '{slug}' => rawurlencode((string) $product->getSlug()),
+                '{locale}' => rawurlencode($locale),
+            ]);
+        }
+
+        // Headless shops have no Sylius shop routes; the URL is optional for BaseLinker.
+        try {
+            return $this->router->generate('sylius_shop_product_show', [
+                '_locale' => $locale,
+                'slug' => $product->getSlug(),
+            ], RouterInterface::ABSOLUTE_URL);
+        } catch (RouteNotFoundException $exception) {
+            return '';
+        }
+    }
+
+    private function getTax(ProductVariantInterface $variant, ChannelInterface $channel): int
     {
         $criteria = ['zone' => $channel->getDefaultTaxZone()];
         $taxRate = $this->taxRateResolver->resolve($variant, $criteria);
@@ -114,16 +138,16 @@ class ProductMapper
         })->toArray();
     }
 
-    private function getVariants(Product $product, ChannelInterface $channel): array
+    /** @param ProductVariantInterface[] $variants */
+    private function getVariants(array $variants, ChannelInterface $channel): array
     {
         $return = [];
-        $productName = $product->getName();
-        /** @var ProductVariantInterface $variant */
-        foreach ($product->getVariants() as $variant) {
+        foreach ($variants as $variant) {
             $quantity = (int) $variant->getOnHand() - (int) $variant->getOnHold();
+            $name = $this->nameResolver->forVariant($variant);
             $return[(int) $variant->getId()] = [
-                'full_name' => $productName . ' ' . $variant->getName(),
-                'name' => $productName . ' ' . $variant->getName(),
+                'full_name' => $name,
+                'name' => $name,
                 'price' => $this->getPrice($variant, $channel),
                 'quantity' => $quantity,
                 'sku' => $variant->getCode(),

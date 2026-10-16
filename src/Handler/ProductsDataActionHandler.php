@@ -21,7 +21,6 @@ use Spinbits\SyliusBaselinkerPlugin\Rest\Input;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\Product;
-use Sylius\Component\Core\Model\ProductVariantInterface;
 
 class ProductsDataActionHandler implements HandlerInterface
 {
@@ -50,10 +49,7 @@ class ProductsDataActionHandler implements HandlerInterface
         $return = [];
         /** @var Product[] $paginator */
         foreach ($paginator as $product) {
-            /** @var ProductVariantInterface $variant */
-            foreach ($this->mapper->map($product, $channel) as $variant) {
-                $return[(int) $product->getId()] = $variant;
-            }
+            $return[(int) $product->getId()] = $this->mapper->map($product, $channel);
         }
         /** @var Pagerfanta $paginator */
         $return['pages'] = $paginator->getNbPages();
